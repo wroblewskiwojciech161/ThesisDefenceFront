@@ -1,32 +1,163 @@
 <template>
-  <div>
+  <div class="page-container">
+ 
+    <!-- DIALAG ADD QUESTION -->
+    <!------------------------------------------------------------->
 
-           <!-- DIALAG CATEGORY QUESTION -->
-    <!-------------------------------------------------------------> 
-
-      <v-dialog
-      v-model="showCategoryQuestion"
-      width="800px"
-      max-width="100%"
-    >
+    <v-dialog v-model="showAddPanel" width="90%" >
       <v-card>
         <v-card-title class="text-h5">
-         <span style="font-weight:700;margin-right:20px">{{question.topic}}.</span> {{question.question}}
+          <span style="font-weight: 700; margin-right: 20px"
+            >Dodaj pytanie</span
+          >
+
+        </v-card-title>
+
+        <!-- FORM -->
+          <validation-observer
+    ref="observer"
+    v-slot="{ invalid }"
+  >
+    <v-form @submit.prevent="submit" v-model="addFormModel">
+      <validation-provider
+        v-slot="{ errors }"
+        name="Pytanie"
+        rules="required|max:256"
+      >
+        <v-text-field
+          v-model="addQuestion"
+          :counter="256"
+          :error-messages="errors"
+          label="Pytanie"
+          required
+        ></v-text-field>
+      </validation-provider>
+   <validation-provider
+        v-slot="{ errors }"
+        name="Temat"
+        rules="required|max:256"
+      >
+        <v-text-field
+          v-model="addTopic"
+          :counter="256"
+          :error-messages="errors"
+          label="Temat"
+          required
+        ></v-text-field>
+      </validation-provider>
+
+      <validation-provider
+        v-slot="{ errors }"
+        name="Autor pytania/Prowadzący"
+        rules="required|max:256"
+      >
+        <v-text-field
+          v-model="addSender"
+          :counter="256"
+          :error-messages="errors"
+          label="Autor pytania/Prowadzący"
+          required
+        ></v-text-field>
+      </validation-provider>
+       <validation-provider
+        v-slot="{ errors }"
+        name="Odpowiedź"
+        rules="required|max:1024"
+      >
+        <v-text-field
+          v-model="addAnswer"
+          :counter="1024"
+          :error-messages="errors"
+          label="Odpowiedź"
+          required
+        ></v-text-field>
+      </validation-provider>
+       <validation-provider
+        v-slot="{ errors }"
+        name="Keywords"
+        rules="required|max:1024"
+      >
+        <v-text-field
+          v-model="addKeywords"
+          :counter="1024"
+          :error-messages="errors"
+          label="Keywords"
+          required
+        ></v-text-field>
+      </validation-provider>
+
+      <v-btn
+        class="mr-4"
+        type="submit"
+        :disabled="invalid"
+        @click="sendForm"
+      >
+        submit
+      </v-btn>
+      <v-btn @click="clear">
+        clear
+      </v-btn>
+    </v-form>
+  </validation-observer>
+        <!-- end FORM -->
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+    
+          <v-btn
+            color="green darken-1"
+            text
+            @click="showAddPanel = false"
+          >
+            Zamknij
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- DIALAG CATEGORY QUESTION -->
+    <!------------------------------------------------------------->
+
+    <v-dialog v-model="showCategoryQuestion" width="800px" max-width="100%">
+      <v-card>
+        <v-card-title class="text-h5">
+          <span style="font-weight: 700; margin-right: 20px"
+            >{{ question.topic }}.</span
+          >
+          {{ question.question }}
         </v-card-title>
 
         <v-card-text>
-  <v-expansion-panels>
-             <v-expansion-panel
-          >
-            <v-expansion-panel-header  style="font-size:1.2rem">
-              Pokaż odpowiedź
-            </v-expansion-panel-header>
-            <v-expansion-panel-content  style="font-size:1.2rem">
-                 {{question.answer}}
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-            </v-expansion-panels>
-   
+          <v-btn @click="searchAnswer(question)">Poszukaj odpowiedzi</v-btn>
+          <v-expansion-panels>
+            <v-expansion-panel class="mt-4">
+              <v-expansion-panel-header style="font-size: 1.2rem">
+                Pokaż odpowiedź
+              </v-expansion-panel-header>
+              <v-expansion-panel-content style="font-size: 1.2rem">
+                   <v-card-text v-for="(item,i) in parseQuestionJson" :key="i" style="font-size: 1.2rem">
+                          <vue-mathjax  :formula="item"></vue-mathjax><br>
+                   </v-card-text>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+
+              <v-expansion-panel class="mt-5">
+              <v-expansion-panel-header style="font-size: 1.2rem">
+                Pokaż słowa kluczowe
+              </v-expansion-panel-header>
+              <v-expansion-panel-content style="font-size: 1.2rem">
+                <v-row>
+                  <v-card-text style="font-size: 1.2rem">
+                    <span v-for="el in question.keywords" :key="el"
+                      >{{ el }},
+                      <div style="width: 10px"></div
+                    ></span>
+                  </v-card-text>
+                </v-row>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-card-text>
 
         <v-card-actions>
@@ -47,8 +178,6 @@
             Losowe pytanie z kategorii
           </v-btn>
 
-          
-
           <v-btn
             color="green darken-1"
             text
@@ -63,7 +192,7 @@
     <!---------------------------------------------------------------->
 
     <!-- DIALAG PREVIEW -->
-    <!-------------------------------------------------------------> 
+    <!------------------------------------------------------------->
     <v-dialog v-model="dialog" persistent width="80%">
       <v-card>
         <!--question-->
@@ -71,13 +200,13 @@
           {{ currentTask.question }}
         </v-card-title>
         <v-spacer></v-spacer>
-        <v-card-text style="font-size: 1.2rem">{{
-          currentTask.answer
-        }}</v-card-text>
-        <v-spacer></v-spacer>
+        <v-card-text v-for="(item,i) in parseAnswerJson" :key="i" style="font-size: 1.2rem">
+                 <vue-mathjax  :formula="item"></vue-mathjax><br>
+        </v-card-text>
+        <v-spacer></v-spacer><br>
         <v-row>
           <v-card-text style="font-size: 1.2rem">
-            Słowa kluczowe :
+            <span style="font-size: 1.2rem;font-weight:700">Słowa kluczowe :</span> <br><br>
             <span v-for="el in currentTask.keywords" :key="el"
               >{{ el }},
               <div style="width: 10px"></div
@@ -85,8 +214,8 @@
           </v-card-text>
         </v-row>
         <v-spacer></v-spacer>
-        <v-card-text style="font-size: 1.2rem"
-          >Autor: {{ currentTask.sender }}</v-card-text
+        <p style="font-size: 1.2rem;margin-left:20px"
+          > <br>Autor: {{ currentTask.sender }}</p
         >
         <v-spacer></v-spacer>
         <v-card-actions>
@@ -97,7 +226,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-      <!-------------------------------------------------------------> 
+    <!------------------------------------------------------------->
 
     <!-- entry point drawer -->
     <v-card height="100%">
@@ -122,30 +251,36 @@
         <v-list dense>
           <v-list-item v-for="item in items" :key="item.title">
             <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
+              <v-icon @click="handleClick(item)">{{ item.icon }}</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
+              <v-list-item-title
+                style="cursor: pointer"
+                @click="handleClick(item)"
+                >{{ item.title }}</v-list-item-title
+              >
             </v-list-item-content>
           </v-list-item>
         </v-list>
 
         <v-divider></v-divider>
         <v-list-item>Kategorie</v-list-item>
-         <v-list dense>
+        <v-list dense>
           <v-list-item v-for="item in allTopics" :key="item">
             <v-list-item-icon>
               <v-icon @click="randomQuestion(item)">mdi-book</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
-              <v-list-item-title style="cursor:pointer" @click="randomQuestion(item)">{{item}}</v-list-item-title>
+              <v-list-item-title
+                style="cursor: pointer"
+                @click="randomQuestion(item)"
+                >{{ item }}</v-list-item-title
+              >
             </v-list-item-content>
           </v-list-item>
         </v-list>
-
-
       </v-navigation-drawer>
       <v-card width="calc(100% - 300px)">
         <v-card-title>
@@ -174,11 +309,60 @@
 </template>
 
 <script>
+import { required, digits, email, max, regex } from 'vee-validate/dist/rules';
+  import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate';
+  import { VueMathjax} from 'vue-mathjax';
+import axios from 'axios';
+
+setInteractionMode('eager')
+
+  extend('digits', {
+    ...digits,
+    message: '{_field_} needs to be {length} digits. ({_value_})',
+  })
+
+  extend('required', {
+    ...required,
+    message: '{_field_} can not be empty',
+  })
+
+  extend('max', {
+    ...max,
+    message: '{_field_} may not be greater than {length} characters',
+  })
+
+  extend('regex', {
+    ...regex,
+    message: '{_field_} {_value_} does not match {regex}',
+  })
+
+  extend('email', {
+    ...email,
+    message: 'Email must be valid',
+  })
 
 export default {
-  components: {},
+  components: {
+
+      ValidationProvider,
+      ValidationObserver,
+      'vue-mathjax': VueMathjax
+  },
   data() {
     return {
+        formula: '$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$',
+      msg: 'Welcome to Your Vue.js App',
+      //-----------------Add Form
+      showAddPanel: false,
+      addFormModel: {},
+
+      addTopic:"",
+      addKeywords: "",
+      addQuestion : "",
+      addAnswer : "",
+      addSender : "",
+
+      //----------------------------
       currentTask: {
         uuid: "1",
         sender: "",
@@ -190,10 +374,10 @@ export default {
       },
       //------------------------------------
       showCategoryQuestion: false,
-      currentQuestionIndex : 0,
+      currentQuestionIndex: 0,
       selectedCategory: "",
       categoryItems: [],
-      question:{
+      question: {
         uuid: "1",
         sender: "",
         question: "",
@@ -207,11 +391,10 @@ export default {
       dialog: false,
       showPreview: false,
       allQuestions: [],
-      allTopics : [],
+      allTopics: [],
       items: [
-        { title: "Losowe Pytanie", icon: "mdi-chat-question" },
-        { title: "Home", icon: "mdi-home-city" },
-        { title: "Dodaj pytanie", icon: "mdi-chat-question" },
+        { title: "Home", icon: "mdi-home-city", content: "home" },
+        { title: "Dodaj pytanie", icon: "mdi-chat-question", content: "add" },
       ],
       search: "",
       headers: [
@@ -223,181 +406,126 @@ export default {
       ],
     };
   },
-  methods: {
-    randomListIndex(list){
-      return Math.floor(Math.random() * (list.length - 1));
-
+  computed : {
+    parseAnswerJson(){
+      return Object.values(this.currentTask.answer)
     },
-    randomQuestion(item){
- 
+    parseQuestionJson(){
+      return Object.values(this.question.answer)
+    }
+  },
+  methods: {
+    searchAnswer(question){
+      const query = question.question;
+    const url ='https://www.google.com/search?q=' + query;
+    window.open(url,'_blank');
+    },
+    sendForm(){
+      if(this.addFormModel){
+        const payload =  {
+          sender: this.addSender,
+          question: this.addQuestion,
+          topic: this.addTopic,
+          keywords: this.addKeywords.split(","),
+          image: null,
+          answer: this.addAnswer
+        }
+        console.log(payload)
+      }
+    },
+     submit () {
+        this.$refs.observer.validate()
+      },
+      clear () {
+        this.addQuestion = ''
+        this.addAnswer = ''
+        this.addTopic = ''
+        this.addKeywords = ''
+        this.addSender = ''
+        this.$refs.observer.reset()
+      },
+    handleClick(item) {
+      if(item.content === 'add'){
+        this.showAddPanel = true;
+      }
+    },
+    randomListIndex(list) {
+      return Math.floor(Math.random() * (list.length - 1));
+    },
+    randomQuestion(item) {
       this.selectedCategory = item;
 
-      this.categoryItems = this.allQuestions.filter((el)=>{
-        if(item === 'Wszystkie'){
-          return el
-        }else{
-          return  el.topic === item
+      this.categoryItems = this.allQuestions.filter((el) => {
+        if (item === "Wszystkie") {
+          return el;
+        } else {
+          return el.topic === item;
         }
-        
-      })
+      });
 
-      
       this.currentQuestionIndex = this.randomListIndex(this.categoryItems);
-      this.question = this.categoryItems[this.randomListIndex(this.categoryItems)]
-      
-     
+      this.question =
+        this.categoryItems[this.randomListIndex(this.categoryItems)];
+
       this.showCategoryQuestion = true;
     },
-    renderRandomCategoryQuestion(){
-       this.question = this.categoryItems[this.randomListIndex(this.categoryItems)]
+    renderRandomCategoryQuestion() {
+      this.question =
+        this.categoryItems[this.randomListIndex(this.categoryItems)];
     },
-    renderNextCategoryQuestion(){
+    renderNextCategoryQuestion() {
+      if (this.currentQuestionIndex + 1 > this.categoryItems.length - 1) {
+        this.currentQuestionIndex = 0;
+      } else {
+        this.currentQuestionIndex += 1;
+      }
 
-       if(this.currentQuestionIndex + 1 > this.categoryItems.length - 1){
-         this.currentQuestionIndex = 0;
-       }else{
-         this.currentQuestionIndex += 1;
-       }
-      
-       this.question = this.categoryItems[this.currentQuestionIndex]
+      this.question = this.categoryItems[this.currentQuestionIndex];
     },
     chooseItem(item) {
-
-      (this.currentTask = item),
-        setTimeout(() => {
+      console.log(item)
+      item.keywords = item.keywords.split(",")
+      this.currentTask = item;
+      setTimeout(() => {
           this.dialog = true;
-        }, 400);
+      }, 400);
     },
     fetchData() {
-      return [
-        {
-          uuid: "1",
-          sender: "Paweł Zieliński",
-          question: "Co to RSA?",
-          topic: "Kryptografia",
-          keywords: [
-            "kryptografia",
-            "rsa",
-            "klucz publiczny",
-            "klucz prywatny",
-          ],
-          image: null,
-          answer:
-            "Algorytm Rivesta-Shamira-Adlemana (RSA) – jeden z pierwszych i obecnie najpopularniejszych asymetrycznych algorytmów kryptograficznych z kluczem publicznym, zaprojektowany w 1977 przez Rona Rivesta, Adiego Shamira oraz Leonarda Adlemana. Pierwszy algorytm, który może być stosowany zarówno do szyfrowania, jak i do podpisów cyfrowych. Bezpieczeństwo szyfrowania opiera się na trudności faktoryzacji dużych liczb złożonych. Jego nazwa pochodzi od pierwszych liter nazwisk jego twórców.",
-        },
-                {
-          uuid: "2",
-          sender: "Paweł Zieliński",
-          question: "Co to klucz prywatny ?",
-          topic: "Kryptografia",
-          keywords: [
-            "kryptografia",
-            "rsa",
-            "klucz publiczny",
-            "klucz prywatny",
-          ],
-          image: null,
-          answer:
-            "Algorytm Rivesta-Shamira-Adlemana (RSA) – jeden z pierwszych i obecnie najpopularniejszych asymetrycznych algorytmów kryptograficznych z kluczem publicznym, zaprojektowany w 1977 przez Rona Rivesta, Adiego Shamira oraz Leonarda Adlemana. Pierwszy algorytm, który może być stosowany zarówno do szyfrowania, jak i do podpisów cyfrowych. Bezpieczeństwo szyfrowania opiera się na trudności faktoryzacji dużych liczb złożonych. Jego nazwa pochodzi od pierwszych liter nazwisk jego twórców.",
-        },
-                {
-          uuid: "3",
-          sender: "Paweł Zieliński",
-          question: "Co to klucz publiczny?",
-          topic: "Kryptografia",
-          keywords: [
-            "kryptografia",
-            "rsa",
-            "klucz publiczny",
-            "klucz prywatny",
-          ],
-          image: null,
-          answer:
-            "Algorytm Rivesta-Shamira-Adlemana (RSA) – jeden z pierwszych i obecnie najpopularniejszych asymetrycznych algorytmów kryptograficznych z kluczem publicznym, zaprojektowany w 1977 przez Rona Rivesta, Adiego Shamira oraz Leonarda Adlemana. Pierwszy algorytm, który może być stosowany zarówno do szyfrowania, jak i do podpisów cyfrowych. Bezpieczeństwo szyfrowania opiera się na trudności faktoryzacji dużych liczb złożonych. Jego nazwa pochodzi od pierwszych liter nazwisk jego twórców.",
-        },
-                {
-          uuid: "4",
-          sender: "Paweł Zieliński",
-          question: "Co to piwo?",
-          topic: "Kryptografia",
-          keywords: [
-            "kryptografia",
-            "rsa",
-            "klucz publiczny",
-            "klucz prywatny",
-          ],
-          image: null,
-          answer:
-            "Algorytm Rivesta-Shamira-Adlemana (RSA) – jeden z pierwszych i obecnie najpopularniejszych asymetrycznych algorytmów kryptograficznych z kluczem publicznym, zaprojektowany w 1977 przez Rona Rivesta, Adiego Shamira oraz Leonarda Adlemana. Pierwszy algorytm, który może być stosowany zarówno do szyfrowania, jak i do podpisów cyfrowych. Bezpieczeństwo szyfrowania opiera się na trudności faktoryzacji dużych liczb złożonych. Jego nazwa pochodzi od pierwszych liter nazwisk jego twórców.",
-        },
-                {
-          uuid: "5",
-          sender: "Paweł Zieliński",
-          question: "Na czym polega problem przedstawienia 0.1 w postaci binarnej?",
-          topic: "Obliczenia naukowe",
-          keywords: [
-            "kryptografia",
-            "rsa",
-            "klucz publiczny",
-            "klucz prywatny",
-          ],
-          image: null,
-          answer:
-            "Algorytm Rivesta-Shamira-Adlemana (RSA) – jeden z pierwszych i obecnie najpopularniejszych asymetrycznych algorytmów kryptograficznych z kluczem publicznym, zaprojektowany w 1977 przez Rona Rivesta, Adiego Shamira oraz Leonarda Adlemana. Pierwszy algorytm, który może być stosowany zarówno do szyfrowania, jak i do podpisów cyfrowych. Bezpieczeństwo szyfrowania opiera się na trudności faktoryzacji dużych liczb złożonych. Jego nazwa pochodzi od pierwszych liter nazwisk jego twórców.",
-        },
-        {
-          uuid: "6",
-          sender: "Wojciech Wodo",
-          question: "Co to keystroking/keystroke dynamics ?",
-          topic: "Biometria",
-          keywords: [
-            "biometria",
-            "keystroking",
-            "dynamika pisania",
-            "keystroke dynamics",
-          ],
-          image: null,
-          answer:
-            "Dynamika pisania lub biometria naciśnięć klawiszy odnosi się do szczegółowych informacji, które dokładnie opisują, kiedy każdy klawisz został naciśnięty i kiedy został zwolniony, gdy ktoś pisze na klawiaturze komputera .",
-        },
-        {
-          uuid: "7",
-          sender: "Wojciech Wodo",
-          question: "Co to biometria ?",
-          topic: "Biometria",
-          keywords: [
-            "biometria",
-          ],
-          image: null,
-          answer:
-            "Biometria to nic",
-        },
-        {
-          uuid: "8",
-          sender: "Wojciech Wodo",
-          question: "Co to baza danych?",
-          topic: "Bazy danych",
-          keywords: [
-            "bazy danych"
-          ],
-          image: null,
-          answer: "Jest takie coś TODO",
-        },
-      ];
+      return [];
     },
   },
-  mounted() {
-    this.allQuestions = this.fetchData();
-    let topics = []
-    topics.push("Wszystkie")
-    for(let el of this.allQuestions){
-      if(!topics.includes(el.topic)){
-        topics.push(el.topic)
+  async mounted() {
+    //this.allQuestions = this.fetchData();
+    const res = await axios.get(`https://thesis-defence-backend.herokuapp.com/tasks`);
+     console.log(Object.values(res.data[0].answer))
+     this.allQuestions = res.data;
+
+    let topics = [];
+    topics.push("Wszystkie");
+    for (let el of this.allQuestions) {
+      if (!topics.includes(el.topic)) {
+        topics.push(el.topic);
       }
     }
     this.allTopics = topics;
+
+
+ 
   },
 };
 </script>
 
-<style></style>
+<style>
+.page-container {
+  background: url("https://cdn.vuetifyjs.com/images/parallax/material.jpg");
+  padding-top: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  min-height: 100%;
+}
+
+.v-sheet.v-card:not(.v-sheet--outlined) {
+    box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+    padding: 30px 30px !important;
+}
+</style>
