@@ -5,7 +5,9 @@ import router from "./router";
 import store from "./store";
 import i18n from "./i18n";
 import vuetify from "./plugins/vuetify";
+import { firestorePlugin } from 'vuefire'
 
+Vue.use(firestorePlugin);
 Vue.config.productionTip = false;
 
 new Vue({

@@ -1,8 +1,30 @@
 <template>
   <div class="page-container">
+    
  
     <!-- DIALAG ADD QUESTION -->
     <!------------------------------------------------------------->
+ <v-app-bar
+      absolute
+      color="primary"
+      elevate-on-scroll
+      scroll-target="#scrolling-techniques-7"
+      outlined
+    >
+
+
+      <v-spacer></v-spacer>
+
+      <v-btn @click="drawer = !drawer" icon>
+        <v-icon>mdi-page-layout-sidebar-right
+</v-icon>
+      </v-btn>
+    </v-app-bar>
+
+
+
+
+
 
     <v-dialog v-model="showAddPanel" width="90%" >
       <v-card>
@@ -232,7 +254,7 @@
 
     <!-- entry point drawer -->
     <v-card height="100%">
-      <v-navigation-drawer width="300px" absolute permanent right>
+      <v-navigation-drawer width="300px" absolute permanent right v-if="drawer">
         <template v-slot:prepend>
           <v-list-item two-line>
             <v-list-item-avatar>
@@ -249,9 +271,11 @@
         </template>
 
         <v-divider></v-divider>
-
+    <v-switch class="ml-5" v-model="drawer">Zamknij</v-switch>
+    <v-divider></v-divider>
         <v-list dense>
           <v-list-item v-for="item in items" :key="item.title">
+            
             <v-list-item-icon>
               <v-icon @click="handleClick(item)">{{ item.icon }}</v-icon>
             </v-list-item-icon>
@@ -282,9 +306,10 @@
               >
             </v-list-item-content>
           </v-list-item>
+           <v-divider></v-divider>
         </v-list>
       </v-navigation-drawer>
-      <v-card width="calc(100% - 300px)">
+      <v-card  width="calc(100% )">
         <v-card-title>
           Pytania do obrony
           <v-spacer></v-spacer>
@@ -311,10 +336,11 @@
 </template>
 
 <script>
+import { getCities,add } from '../firebaseDatabase';
 import { required, digits, email, max, regex } from 'vee-validate/dist/rules';
   import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate';
   import { VueMathjax} from 'vue-mathjax';
-import axios from 'axios';
+// import axios from 'axios';
 
 setInteractionMode('eager')
 
@@ -352,6 +378,7 @@ export default {
   },
   data() {
     return {
+      drawer:true,
         formula: '$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$',
       msg: 'Welcome to Your Vue.js App',
       //-----------------Add Form
@@ -429,10 +456,15 @@ export default {
           question: this.addQuestion,
           topic: this.addTopic,
           keywords: this.addKeywords.split(","),
-          image: null,
-          answer: this.addAnswer
+          answer: [this.addAnswer]
         }
         console.log(payload)
+        console.log("DODAJE")
+        add(payload)
+
+
+      
+   
       }
     },
      submit () {
@@ -486,7 +518,6 @@ export default {
     },
     chooseItem(item) {
       console.log(item)
-      item.keywords = item.keywords.split(",")
       this.currentTask = item;
       setTimeout(() => {
           this.dialog = true;
@@ -497,10 +528,8 @@ export default {
     },
   },
   async mounted() {
-    //this.allQuestions = this.fetchData();
-    const res = await axios.get(`https://obrona-back.herokuapp.com/tasks`);
-     console.log(Object.values(res.data[0].answer))
-     this.allQuestions = res.data;
+
+     this.allQuestions = await  getCities();
 
     let topics = [];
     topics.push("Wszystkie");
