@@ -59,6 +59,7 @@
           required
         ></v-text-field>
       </validation-provider>
+      <!--- answer creator -->
        <validation-provider
         v-slot="{ errors }"
         name="Odpowiedź"
@@ -72,6 +73,7 @@
           required
         ></v-text-field>
       </validation-provider>
+        <!--- answer creator end-->
        <validation-provider
         v-slot="{ errors }"
         name="Keywords"
@@ -496,7 +498,7 @@ export default {
   },
   async mounted() {
     //this.allQuestions = this.fetchData();
-    const res = await axios.get(`https://thesis-defence-backend.herokuapp.com/tasks`);
+    const res = await axios.get(`https://obrona-back.herokuapp.com/tasks`);
      console.log(Object.values(res.data[0].answer))
      this.allQuestions = res.data;
 
