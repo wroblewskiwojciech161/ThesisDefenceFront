@@ -289,10 +289,10 @@
     <v-dialog v-model="showCategoryQuestion" width="800px" max-width="100%">
       <v-card>
         <v-card-title class="text-h5">
-          <span style="font-weight: 700; margin-right: 20px; font-size: 1.2rem"
+          <span style="font-weight: 700; margin-right: 20px; font-size: 1rem"
             >{{ question.topic }}.</span
           >
-          <span style="font-size: 1.2rem">
+          <span style="font-size: 1rem">
             {{ question.question }}
           </span>
         </v-card-title>
@@ -376,12 +376,12 @@
       <v-card>
         <!--question-->
         <v-card-title
-          class=""
           style="
             margin-top: 1rem;
             overflow-wrap: break-word;
             margin: 1rem 0;
             padding: 0 0 0 0;
+            font-size: 0.9rem;
           "
         >
           {{ currentTask.question }}
@@ -712,6 +712,8 @@ export default {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   min-height: 100%;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
 }
 
 .v-sheet.v-card:not(.v-sheet--outlined) {
