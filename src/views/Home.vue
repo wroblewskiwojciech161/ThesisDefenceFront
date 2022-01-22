@@ -1,139 +1,282 @@
 <template>
   <div class="page-container">
-    
- 
-    <!-- DIALAG ADD QUESTION -->
-    <!------------------------------------------------------------->
- <v-app-bar
-      absolute
-      color="primary"
-      elevate-on-scroll
-      scroll-target="#scrolling-techniques-7"
-      outlined
-    >
+    <v-app-bar color="deep-purple" dark>
+      <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
 
-
-      <v-spacer></v-spacer>
-
-      <v-btn @click="drawer = !drawer" icon>
-        <v-icon>mdi-page-layout-sidebar-right
-</v-icon>
-      </v-btn>
+      <v-toolbar-title></v-toolbar-title>
     </v-app-bar>
 
+    <v-navigation-drawer v-model="drawer" absolute temporary>
+      <v-divider></v-divider>
+      <v-switch class="ml-5" v-model="drawer">Zamknij</v-switch>
+      <v-divider></v-divider>
 
+      <v-divider></v-divider>
+      <v-list dense>
+        <v-list-item two-line>
+          <v-list-item-avatar>
+            <img
+              src="https://forumakademickie.pl/wp-content/uploads/2021/09/PWr2.jpeg"
+            />
+          </v-list-item-avatar>
 
+          <v-list-item-content>
+            <v-list-item-title>Zrozpaczony student</v-list-item-title>
+            <v-list-item-subtitle>aktywny xd</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item v-for="item in items" :key="item.title">
+          <v-list-item-icon>
+            <v-icon @click="handleClick(item)">{{ item.icon }}</v-icon>
+          </v-list-item-icon>
 
+          <v-list-item-content>
+            <v-list-item-title
+              style="cursor: pointer"
+              @click="handleClick(item)"
+              >{{ item.title }}</v-list-item-title
+            >
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
 
+      <v-divider></v-divider>
+      <v-list-item>Kategorie</v-list-item>
+      <v-list dense>
+        <v-list-item v-for="item in allTopics" :key="item">
+          <v-list-item-icon>
+            <v-icon @click="randomQuestion(item)">mdi-book</v-icon>
+          </v-list-item-icon>
 
-    <v-dialog v-model="showAddPanel" width="90%" >
+          <v-list-item-content>
+            <v-list-item-title
+              style="cursor: pointer"
+              @click="randomQuestion(item)"
+              >{{ item }}</v-list-item-title
+            >
+          </v-list-item-content>
+        </v-list-item>
+        <v-divider></v-divider>
+      </v-list>
+    </v-navigation-drawer>
+
+    <!-- DIALAG ADD QUESTION -->
+    <!------------------------------------------------------------->
+
+    <v-dialog v-model="showAddPanel" width="90%">
       <v-card>
         <v-card-title class="text-h5">
-          <span style="font-weight: 700; margin-right: 20px"
+          <span
+            style="font-weight: 700; margin-right: 20px"
+            v-if="mode == 'add'"
             >Dodaj pytanie</span
           >
-
+          <span
+            style="font-weight: 700; margin-right: 20px"
+            v-if="mode == 'edit'"
+            >Edytuj pytanie</span
+          >
         </v-card-title>
 
         <!-- FORM -->
-          <validation-observer
-    ref="observer"
-    v-slot="{ invalid }"
-  >
-    <v-form @submit.prevent="submit" v-model="addFormModel">
-      <validation-provider
-        v-slot="{ errors }"
-        name="Pytanie"
-        rules="required|max:256"
-      >
-        <v-text-field
-          v-model="addQuestion"
-          :counter="256"
-          :error-messages="errors"
-          label="Pytanie"
-          required
-        ></v-text-field>
-      </validation-provider>
-   <validation-provider
-        v-slot="{ errors }"
-        name="Temat"
-        rules="required|max:256"
-      >
-        <v-text-field
-          v-model="addTopic"
-          :counter="256"
-          :error-messages="errors"
-          label="Temat"
-          required
-        ></v-text-field>
-      </validation-provider>
+        <validation-observer ref="observer" v-slot="{ invalid }">
+          <v-form @submit.prevent="submit" v-model="addFormModel">
+            <validation-provider
+              v-slot="{ errors }"
+              name="Pytanie"
+              rules="required|max:256"
+            >
+              <v-text-field
+                v-model="addQuestion"
+                :counter="256"
+                :error-messages="errors"
+                label="Pytanie"
+                required
+              ></v-text-field>
+            </validation-provider>
+            <validation-provider
+              v-slot="{ errors }"
+              name="Temat"
+              rules="required|max:256"
+            >
+              <v-text-field
+                v-model="addTopic"
+                :counter="256"
+                :error-messages="errors"
+                label="Temat"
+                required
+              ></v-text-field>
+            </validation-provider>
 
-      <validation-provider
-        v-slot="{ errors }"
-        name="Autor pytania/Prowadzący"
-        rules="required|max:256"
-      >
-        <v-text-field
-          v-model="addSender"
-          :counter="256"
-          :error-messages="errors"
-          label="Autor pytania/Prowadzący"
-          required
-        ></v-text-field>
-      </validation-provider>
-      <!--- answer creator -->
-       <validation-provider
-        v-slot="{ errors }"
-        name="Odpowiedź"
-        rules="required|max:1024"
-      >
-        <v-text-field
-          v-model="addAnswer"
-          :counter="1024"
-          :error-messages="errors"
-          label="Odpowiedź"
-          required
-        ></v-text-field>
-      </validation-provider>
-        <!--- answer creator end-->
-       <validation-provider
-        v-slot="{ errors }"
-        name="Keywords"
-        rules="required|max:1024"
-      >
-        <v-text-field
-          v-model="addKeywords"
-          :counter="1024"
-          :error-messages="errors"
-          label="Keywords"
-          required
-        ></v-text-field>
-      </validation-provider>
+            <validation-provider
+              v-slot="{ errors }"
+              name="Autor pytania/Prowadzący"
+              rules="required|max:256"
+            >
+              <v-text-field
+                v-model="addSender"
+                :counter="256"
+                :error-messages="errors"
+                label="Autor pytania/Prowadzący"
+                required
+              ></v-text-field>
+            </validation-provider>
+            <!--- answer creator -->
+            <!--- answer creator -->
+            <!--- answer creator -->
+            <!--- answer creator -->
+            <!--- answer creator -->
+            <v-card class="my-3">
+              <v-icon
+                class="my-3"
+                style="cursor: pointer"
+                @click="showAnswerAlert = !showAnswerAlert"
+                >mdi-alert-octagram</v-icon
+              >
+              <validation-provider
+                v-slot="{ errors }"
+                name="Odpowiedź"
+                rules="required|max:1024"
+              >
+                <v-text-field
+                  v-model="addAnswer"
+                  :counter="1024"
+                  :error-messages="errors"
+                  label="Odpowiedź"
+                  required
+                ></v-text-field>
+              </validation-provider>
+            </v-card>
+            <!--- answer creator end-->
+            <!--- answer creator end-->
+            <!--- answer creator end-->
+            <!--- answer creator end-->
 
-      <v-btn
-        class="mr-4"
-        type="submit"
-        :disabled="invalid"
-        @click="sendForm"
-      >
-        submit
-      </v-btn>
-      <v-btn @click="clear">
-        clear
-      </v-btn>
-    </v-form>
-  </validation-observer>
+            <validation-provider
+              v-slot="{ errors }"
+              name="Keywords"
+              rules="required|max:1024"
+            >
+              <v-text-field
+                v-model="addKeywords"
+                :counter="1024"
+                :error-messages="errors"
+                label="Keywords"
+                required
+              ></v-text-field>
+            </validation-provider>
+
+            <v-btn
+              class="mr-4"
+              type="submit"
+              :disabled="invalid"
+              @click="sendForm"
+            >
+              submit
+            </v-btn>
+            <v-btn @click="clear"> clear </v-btn>
+          </v-form>
+        </validation-observer>
         <!-- end FORM -->
 
         <v-card-actions>
           <v-spacer></v-spacer>
 
-    
-          <v-btn
-            color="green darken-1"
-            text
-            @click="showAddPanel = false"
+          <v-btn color="green darken-1" text @click="showAddPanel = false">
+            Zamknij
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="deleteConfirm" persistent width="80%">
+      <v-card>
+        <!--question-->
+        <v-card-title> Czy na pewno chcesz usunąć pytanie ? </v-card-title>
+
+        <v-spacer></v-spacer>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="deleteConfirm = false">
+            Zamknij
+          </v-btn>
+          <v-btn color="green darken-1" text @click="confirmedRemove()">
+            Usuń
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!--- showAnswerAlert DIALOG ALERT -->
+
+    <v-dialog v-model="showAnswerAlert" persistent width="80%">
+      <v-card>
+        <!--question-->
+        <v-card-title> Dodawanie odpowiedzi </v-card-title>
+        <v-spacer></v-spacer>
+        <v-col>
+          <span style="margin-bottom: 15px">
+            Odpowiedź do pytania może składać się z kilku sekcji wyświetlanych
+            później jedna pod drugą. Sekcje należy oddzielić wyrażeniem ^^^.
+            Wyświetlanie obsługuje wpisywanie wyrażeń napisanych w TEX
+          </span>
+
+          <v-spacer></v-spacer
+          ><span
+            style="margin-top: 15px; margin-bottom: 15px; font-weight: 600"
           >
+            Przykład</span
+          >
+          <v-spacer></v-spacer>
+
+          <v-spacer></v-spacer>
+          <span style="margin-top: 15px; margin-bottom: 15px"
+            >Jeżeli chcemy użyskać efekt poniżej</span
+          >
+          <v-spacer></v-spacer> <v-spacer></v-spacer>
+          <span style="margin-top: 10px; margin-bottom: 10px; font-weight: 600"
+            >Sekcja 1
+          </span>
+          <v-spacer></v-spacer> <v-spacer></v-spacer>
+          <span style="margin-top: 10px; margin-bottom: 10px; font-weight: 600"
+            >Sekcja 2</span
+          >
+          <v-spacer></v-spacer> <v-spacer></v-spacer>
+          <span style="margin-top: 10px; margin-bottom: 10px; font-weight: 600"
+            >Sekcja 3</span
+          >
+          <v-spacer></v-spacer>
+
+          <v-spacer></v-spacer>
+          <span style="margin-top: 15px; margin-bottom: 15px">
+            Należy w odpowiedzi wpisać Sekcja 1 ^^^ Sekcja 2 ^^^ Sekcja 3
+            ^^^</span
+          >
+          <v-spacer></v-spacer>
+
+          <v-spacer></v-spacer
+          ><span
+            style="margin-top: 15px; margin-bottom: 15px; font-weight: 600"
+          >
+            Przykład latex</span
+          >
+          <v-spacer></v-spacer> <v-spacer></v-spacer>
+          <span style="margin-top: 15px; margin-bottom: 15px"
+            >Jeżeli chcemy użyskać efekt poniżej</span
+          >
+          <v-spacer></v-spacer> <v-spacer></v-spacer>
+          <vue-mathjax
+            formula=" $$p(x) = 3x^6 + 14x^5y + 590x^4y^2 + 19x^3y^3\\  - 12x^2y^4 - 12xy^5 + 2y^6 - a^3b^3 $$"
+          ></vue-mathjax>
+          <v-spacer></v-spacer> <v-spacer></v-spacer> <v-spacer></v-spacer>
+          <span style="margin-top: 15px; margin-bottom: 15px">
+            Należy w odpowiedzi wpisać $$p(x) = 3x^6 + 14x^5y + 590x^4y^2 +
+            19x^3y^3\\ - 12x^2y^4 - 12xy^5 + 2y^6 - a^3b^3 $$</span
+          >
+          <v-spacer></v-spacer>
+        </v-col>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="showAnswerAlert = false">
             Zamknij
           </v-btn>
         </v-card-actions>
@@ -146,34 +289,43 @@
     <v-dialog v-model="showCategoryQuestion" width="800px" max-width="100%">
       <v-card>
         <v-card-title class="text-h5">
-          <span style="font-weight: 700; margin-right: 20px"
+          <span style="font-weight: 700; margin-right: 20px; font-size: 1.2rem"
             >{{ question.topic }}.</span
           >
-          {{ question.question }}
+          <span style="font-size: 1.2rem">
+            {{ question.question }}
+          </span>
         </v-card-title>
 
-        <v-card-text>
+        <v-card-text style="margin-top: 1rem; overflow-wrap: break-word">
           <v-btn @click="searchAnswer(question)">Poszukaj odpowiedzi</v-btn>
           <v-expansion-panels>
             <v-expansion-panel class="mt-4">
-              <v-expansion-panel-header style="font-size: 1.2rem">
+              <v-expansion-panel-header style="font-size: 1rem">
                 Pokaż odpowiedź
               </v-expansion-panel-header>
-              <v-expansion-panel-content style="font-size: 1.2rem">
-                   <v-card-text v-for="(item,i) in parseQuestionJson" :key="i" style="font-size: 1.2rem">
-                          <vue-mathjax  :formula="item"></vue-mathjax><br>
-                   </v-card-text>
+              <v-expansion-panel-content style="font-size: 0.8rem">
+                <v-card-text
+                  v-for="(item, i) in parseQuestionJson"
+                  :key="i"
+                  style="font-size: 0.8rem; overflow-wrap: break-word"
+                >
+                  <vue-mathjax :formula="item"></vue-mathjax><br />
+                </v-card-text>
               </v-expansion-panel-content>
             </v-expansion-panel>
 
-              <v-expansion-panel class="mt-5">
-              <v-expansion-panel-header style="font-size: 1.2rem">
+            <v-expansion-panel class="mt-5">
+              <v-expansion-panel-header style="font-size: 1rem">
                 Pokaż słowa kluczowe
               </v-expansion-panel-header>
-              <v-expansion-panel-content style="font-size: 1.2rem">
+              <v-expansion-panel-content style="font-size: 1rem">
                 <v-row>
-                  <v-card-text style="font-size: 1.2rem">
-                    <span v-for="el in question.keywords" :key="el"
+                  <v-card-text>
+                    <span
+                      style="font-size: 0.8rem"
+                      v-for="el in question.keywords"
+                      :key="el"
                       >{{ el }},
                       <div style="width: 10px"></div
                     ></span>
@@ -185,30 +337,33 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-col style="font-size: 0.9rem">
+            <v-btn
+              color="green darken-1"
+              style="font-size: 0.9rem"
+              text
+              @click="renderNextCategoryQuestion"
+            >
+              Następne pytanie
+            </v-btn>
+            <v-btn
+              color="green darken-1"
+              style="font-size: 0.9rem"
+              text
+              @click="renderRandomCategoryQuestion"
+            >
+              Losowe pytanie
+            </v-btn>
 
-          <v-btn
-            color="green darken-1"
-            text
-            @click="renderNextCategoryQuestion"
-          >
-            Następne pytanie z kategorii
-          </v-btn>
-          <v-btn
-            color="green darken-1"
-            text
-            @click="renderRandomCategoryQuestion"
-          >
-            Losowe pytanie z kategorii
-          </v-btn>
-
-          <v-btn
-            color="green darken-1"
-            text
-            @click="showCategoryQuestion = false"
-          >
-            Zamknij
-          </v-btn>
+            <v-btn
+              color="green darken-1"
+              style="font-size: 0.9rem"
+              text
+              @click="showCategoryQuestion = false"
+            >
+              Zamknij
+            </v-btn>
+          </v-col>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -220,27 +375,48 @@
     <v-dialog v-model="dialog" persistent width="80%">
       <v-card>
         <!--question-->
-        <v-card-title class="text-h5">
+        <v-card-title
+          class=""
+          style="
+            margin-top: 1rem;
+            overflow-wrap: break-word;
+            margin: 1rem 0;
+            padding: 0 0 0 0;
+          "
+        >
           {{ currentTask.question }}
         </v-card-title>
         <v-spacer></v-spacer>
-        <v-card-text v-for="(item,i) in parseAnswerJson" :key="i" style="font-size: 1.2rem">
-                 <vue-mathjax  :formula="item"></vue-mathjax><br>
+        <v-card-text
+          v-for="(item, i) in parseAnswerJson"
+          :key="i"
+          style="
+            font-size: 0.9rem;
+            overflow-wrap: break-word;
+            margin: 0.5rem 0;
+            padding: 0 0 0 0;
+          "
+        >
+          <vue-mathjax :formula="item"></vue-mathjax><br />
         </v-card-text>
-        <v-spacer></v-spacer><br>
+        <v-spacer></v-spacer><br />
         <v-row>
           <v-card-text style="font-size: 1.2rem">
-            <span style="font-size: 1.2rem;font-weight:700">Słowa kluczowe :</span> <br><br>
-            <span v-for="el in currentTask.keywords" :key="el"
+            <span style="font-size: 1rem; font-weight: 700"
+              >Słowa kluczowe :</span
+            >
+            <br /><br />
+            <span
+              v-for="el in currentTask.keywords"
+              :key="el"
+              style="font-size: 0.8rem"
               >{{ el }},
               <div style="width: 10px"></div
             ></span>
           </v-card-text>
         </v-row>
         <v-spacer></v-spacer>
-        <p style="font-size: 1.2rem;margin-left:20px"
-          > <br>Autor: {{ currentTask.sender }}</p
-        >
+        <p style="font-size: 0.9rem"><br />Autor: {{ currentTask.sender }}</p>
         <v-spacer></v-spacer>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -254,62 +430,7 @@
 
     <!-- entry point drawer -->
     <v-card height="100%">
-      <v-navigation-drawer width="300px" absolute permanent right v-if="drawer">
-        <template v-slot:prepend>
-          <v-list-item two-line>
-            <v-list-item-avatar>
-              <img
-                src="data:image/png;base64,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"
-              />
-            </v-list-item-avatar>
-
-            <v-list-item-content>
-              <v-list-item-title>Zrozpaczony student</v-list-item-title>
-              <v-list-item-subtitle>aktywny xd</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </template>
-
-        <v-divider></v-divider>
-    <v-switch class="ml-5" v-model="drawer">Zamknij</v-switch>
-    <v-divider></v-divider>
-        <v-list dense>
-          <v-list-item v-for="item in items" :key="item.title">
-            
-            <v-list-item-icon>
-              <v-icon @click="handleClick(item)">{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-
-            <v-list-item-content>
-              <v-list-item-title
-                style="cursor: pointer"
-                @click="handleClick(item)"
-                >{{ item.title }}</v-list-item-title
-              >
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-
-        <v-divider></v-divider>
-        <v-list-item>Kategorie</v-list-item>
-        <v-list dense>
-          <v-list-item v-for="item in allTopics" :key="item">
-            <v-list-item-icon>
-              <v-icon @click="randomQuestion(item)">mdi-book</v-icon>
-            </v-list-item-icon>
-
-            <v-list-item-content>
-              <v-list-item-title
-                style="cursor: pointer"
-                @click="randomQuestion(item)"
-                >{{ item }}</v-list-item-title
-              >
-            </v-list-item-content>
-          </v-list-item>
-           <v-divider></v-divider>
-        </v-list>
-      </v-navigation-drawer>
-      <v-card  width="calc(100% )">
+      <v-card width="calc(100% )">
         <v-card-title>
           Pytania do obrony
           <v-spacer></v-spacer>
@@ -327,6 +448,12 @@
             <v-icon class="mr-2 mt-1 mb-1" medium @click="chooseItem(item)">
               mdi-android-messages
             </v-icon>
+            <v-icon class="mr-2 mt-1 mb-1" medium @click="removeItem(item)">
+              mdi-delete
+            </v-icon>
+            <v-icon class="mr-2 mt-1 mb-1" medium @click="editItem(item)">
+              mdi-pencil
+            </v-icon>
           </template>
         </v-data-table>
       </v-card>
@@ -336,60 +463,69 @@
 </template>
 
 <script>
-import { getCities,add } from '../firebaseDatabase';
-import { required, digits, email, max, regex } from 'vee-validate/dist/rules';
-  import { extend, ValidationObserver, ValidationProvider, setInteractionMode } from 'vee-validate';
-  import { VueMathjax} from 'vue-mathjax';
+import { getCities, add, remove, edit } from "../firebaseDatabase";
+import { required, digits, email, max, regex } from "vee-validate/dist/rules";
+import {
+  extend,
+  ValidationObserver,
+  ValidationProvider,
+  setInteractionMode,
+} from "vee-validate";
+import { VueMathjax } from "vue-mathjax";
 // import axios from 'axios';
 
-setInteractionMode('eager')
+setInteractionMode("eager");
 
-  extend('digits', {
-    ...digits,
-    message: '{_field_} needs to be {length} digits. ({_value_})',
-  })
+extend("digits", {
+  ...digits,
+  message: "{_field_} needs to be {length} digits. ({_value_})",
+});
 
-  extend('required', {
-    ...required,
-    message: '{_field_} can not be empty',
-  })
+extend("required", {
+  ...required,
+  message: "{_field_} can not be empty",
+});
 
-  extend('max', {
-    ...max,
-    message: '{_field_} may not be greater than {length} characters',
-  })
+extend("max", {
+  ...max,
+  message: "{_field_} may not be greater than {length} characters",
+});
 
-  extend('regex', {
-    ...regex,
-    message: '{_field_} {_value_} does not match {regex}',
-  })
+extend("regex", {
+  ...regex,
+  message: "{_field_} {_value_} does not match {regex}",
+});
 
-  extend('email', {
-    ...email,
-    message: 'Email must be valid',
-  })
+extend("email", {
+  ...email,
+  message: "Email must be valid",
+});
 
 export default {
   components: {
-
-      ValidationProvider,
-      ValidationObserver,
-      'vue-mathjax': VueMathjax
+    ValidationProvider,
+    ValidationObserver,
+    "vue-mathjax": VueMathjax,
   },
   data() {
     return {
-      drawer:true,
-        formula: '$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$',
-      msg: 'Welcome to Your Vue.js App',
+      drawer: true,
+      formula: "$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$",
+      showAnswerAlert: false,
+      deleteConfirm: false,
+      itemToDelete: null,
+      msg: "Welcome to Your Vue.js App",
       //-----------------Add Form
       showAddPanel: false,
       addFormModel: {},
+      mode: "add",
 
-      addTopic:"",
+      addTopic: "",
       addKeywords: "",
-      addQuestion : "",
-      addAnswer : "",
-      addSender : "",
+      addQuestion: "",
+      addUUID: "",
+      addAnswer: "",
+      addSender: "",
 
       //----------------------------
       currentTask: {
@@ -435,56 +571,65 @@ export default {
       ],
     };
   },
-  computed : {
-    parseAnswerJson(){
-      return Object.values(this.currentTask.answer)
+  computed: {
+    parseAnswerJson() {
+      return this.currentTask.answer;
     },
-    parseQuestionJson(){
-      return Object.values(this.question.answer)
-    }
+    parseQuestionJson() {
+      return this.question.answer;
+    },
   },
   methods: {
-    searchAnswer(question){
+    searchAnswer(question) {
       const query = question.question;
-    const url ='https://www.google.com/search?q=' + query;
-    window.open(url,'_blank');
+      const url = "https://www.google.com/search?q=" + query;
+      window.open(url, "_blank");
     },
-    sendForm(){
-      if(this.addFormModel){
-        const payload =  {
+    sendForm() {
+      if (this.addFormModel) {
+        const payload = {
           sender: this.addSender,
           question: this.addQuestion,
           topic: this.addTopic,
           keywords: this.addKeywords.split(","),
-          answer: [this.addAnswer]
+          answer: this.addAnswer.split("^^^"),
+          uuid: this.mode == "add" ? null : this.addUUID,
+        };
+
+        if (this.mode == "add") {
+          add(payload);
+          this.fetchData();
+          this.showAddPanel = false;
+        } else if (this.mode == "edit") {
+          edit(payload);
+          this.fetchData();
+          this.showAddPanel = false;
         }
-        console.log(payload)
-        console.log("DODAJE")
-        add(payload)
-
-
-      
-   
       }
     },
-     submit () {
-        this.$refs.observer.validate()
-      },
-      clear () {
-        this.addQuestion = ''
-        this.addAnswer = ''
-        this.addTopic = ''
-        this.addKeywords = ''
-        this.addSender = ''
-        this.$refs.observer.reset()
-      },
+    submit() {
+      this.$refs.observer.validate();
+    },
+    clear() {
+      this.addQuestion = "";
+      this.addAnswer = "";
+      this.addTopic = "";
+      this.addKeywords = "";
+      this.addSender = "";
+      this.addUUID = null;
+    },
     handleClick(item) {
-      if(item.content === 'add'){
+      if (item.content === "add") {
+        this.clear();
+        this.mode = "add";
         this.showAddPanel = true;
+      }
+      if (item.content === "home") {
+        this.drawer = false;
       }
     },
     randomListIndex(list) {
-      return Math.floor(Math.random() * (list.length - 1));
+      return Math.floor(Math.random() * list.length)
     },
     randomQuestion(item) {
       this.selectedCategory = item;
@@ -499,8 +644,7 @@ export default {
 
       this.currentQuestionIndex = this.randomListIndex(this.categoryItems);
       this.question =
-        this.categoryItems[this.randomListIndex(this.categoryItems)];
-
+      this.categoryItems[this.randomListIndex(this.categoryItems)];
       this.showCategoryQuestion = true;
     },
     renderRandomCategoryQuestion() {
@@ -517,38 +661,53 @@ export default {
       this.question = this.categoryItems[this.currentQuestionIndex];
     },
     chooseItem(item) {
-      console.log(item)
       this.currentTask = item;
       setTimeout(() => {
-          this.dialog = true;
+        this.dialog = true;
       }, 400);
     },
-    fetchData() {
-      return [];
+    removeItem(item) {
+      this.deleteConfirm = true;
+      this.itemToDelete = item.uuid;
+    },
+    confirmedRemove() {
+      remove(this.itemToDelete);
+      this.fetchData();
+      this.deleteConfirm = false;
+    },
+    editItem(item) {
+      this.addSender = item.sender;
+      this.addQuestion = item.question;
+      this.addTopic = item.topic;
+      this.addKeywords = item.keywords.join(",");
+      this.addAnswer = item.answer.join("^^^");
+      this.addUUID = item.uuid;
+
+      this.mode = "edit";
+      this.showAddPanel = true;
+    },
+    async fetchData() {
+      this.allQuestions = await getCities();
+
+      let topics = [];
+      topics.push("Wszystkie");
+      for (let el of this.allQuestions) {
+        if (!topics.includes(el.topic)) {
+          topics.push(el.topic);
+        }
+      }
+      this.allTopics = topics;
     },
   },
   async mounted() {
-
-     this.allQuestions = await  getCities();
-
-    let topics = [];
-    topics.push("Wszystkie");
-    for (let el of this.allQuestions) {
-      if (!topics.includes(el.topic)) {
-        topics.push(el.topic);
-      }
-    }
-    this.allTopics = topics;
-
-
- 
+    this.fetchData();
   },
 };
 </script>
 
 <style>
 .page-container {
-  background: url("https://cdn.vuetifyjs.com/images/parallax/material.jpg");
+  background: white;
   padding-top: 1rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -556,7 +715,18 @@ export default {
 }
 
 .v-sheet.v-card:not(.v-sheet--outlined) {
-    box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
-    padding: 30px 30px !important;
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%),
+    0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+  padding: 30px 30px !important;
+}
+
+.v-sheet.v-card:not(.v-sheet--outlined) {
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%),
+    0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+  padding: 0 0;
+  padding: 0 0 0 0;
+}
+.MathJax {
+  font-size: 23px !important;
 }
 </style>

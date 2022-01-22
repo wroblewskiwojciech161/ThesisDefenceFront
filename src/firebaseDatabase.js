@@ -1,6 +1,6 @@
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs,doc, setDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs,doc, setDoc, deleteDoc } from "firebase/firestore";
 
 
 
@@ -29,9 +29,20 @@ export async function getCities() {
 
 }
 export async function add(payload){
-    // Add a new document in collection "cities"
-    await setDoc(doc(db, "tasks", makeid(35)), payload);
+    const uuid =  makeid(35)
+    payload.uuid = uuid
+    await setDoc(doc(db, "tasks",uuid), payload);
 }
+
+export async function remove(uuid){
+  await deleteDoc(doc(db, "tasks", uuid));
+}
+
+export async function edit(payload){
+  await setDoc(doc(db, "tasks",payload.uuid), payload);
+}
+
+
 
 function makeid(length) {
   var result           = '';
