@@ -179,6 +179,14 @@
         </validation-observer>
         <!-- end FORM -->
 
+           <v-text-field
+                  v-model="accessToken"
+                  :counter="1024"
+                  :error-messages="errors"
+                  label="Token dostępu"
+                  required
+                ></v-text-field>
+
         <v-card-actions>
           <v-spacer></v-spacer>
 
@@ -509,6 +517,8 @@ export default {
   },
   data() {
     return {
+      accessToken : null,
+      //---------------------------------
       drawer: true,
       formula: "$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$",
       showAnswerAlert: false,
@@ -586,7 +596,7 @@ export default {
       window.open(url, "_blank");
     },
     sendForm() {
-      if (this.addFormModel) {
+      if (this.addFormModel &&  this.accessToken == "wit") {
         const payload = {
           sender: this.addSender,
           question: this.addQuestion,
@@ -700,6 +710,8 @@ export default {
     },
   },
   async mounted() {
+    //localStorage.setItem('d00pa', 'wit');
+    this.accessToken = localStorage.getItem('d00pa')
     this.fetchData();
   },
 };
