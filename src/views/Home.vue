@@ -138,13 +138,16 @@
                 name="Odpowiedź"
                 rules="required|max:1024"
               >
-                <v-text-field
-                  v-model="addAnswer"
+  
+
+
+                      <v-textarea
+                       v-model="addAnswer"
                   :counter="1024"
                   :error-messages="errors"
                   label="Odpowiedź"
                   required
-                ></v-text-field>
+                      ></v-textarea>
               </validation-provider>
             </v-card>
             <!--- answer creator end-->
