@@ -7,11 +7,6 @@
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" absolute temporary>
-      <v-divider></v-divider>
-      <v-switch class="ml-5" v-model="drawer">Zamknij</v-switch>
-      <v-divider></v-divider>
-
-      <v-divider></v-divider>
       <v-list dense>
         <v-list-item two-line>
           <v-list-item-avatar>
@@ -22,7 +17,7 @@
 
           <v-list-item-content>
             <v-list-item-title>Zrozpaczony student</v-list-item-title>
-            <v-list-item-subtitle>aktywny xd</v-list-item-subtitle>
+            <v-list-item-subtitle>aktywny</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-list-item v-for="item in items" :key="item.title">
@@ -136,14 +131,14 @@
               <validation-provider
                 v-slot="{ errors }"
                 name="Odpowiedź"
-                rules="required|max:1024"
+                rules="required|max:9999"
               >
   
 
 
                       <v-textarea
                        v-model="addAnswer"
-                  :counter="1024"
+                  :counter="9999"
                   :error-messages="errors"
                   label="Odpowiedź"
                   required
