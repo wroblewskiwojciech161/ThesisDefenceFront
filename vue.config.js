@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: '/',
+  publicPath: '/thesis-defence-front/',
   pluginOptions: {
     i18n: {
       locale: "pl",
