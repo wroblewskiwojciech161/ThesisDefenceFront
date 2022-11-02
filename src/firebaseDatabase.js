@@ -4,14 +4,16 @@ import { getFirestore, collection, getDocs,doc, setDoc, deleteDoc } from "fireba
 
 
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBOwwk1uK7-9WQAEBehirh8g7awc08oGig",
-  authDomain: "thesis-defence.firebaseapp.com",
-  projectId: "thesis-defence",
-  storageBucket: "thesis-defence.appspot.com",
-  messagingSenderId: "342227402358",
-  appId: "1:342227402358:web:1e1b2a9fb4bf334c8b6957"
+  apiKey: "AIzaSyBo3EteqTrLhuFXvwbZcTAI-EXYpqr9b3I",
+  authDomain: "medpomarania.firebaseapp.com",
+  projectId: "medpomarania",
+  storageBucket: "medpomarania.appspot.com",
+  messagingSenderId: "830598243443",
+  appId: "1:830598243443:web:e21156107398be5fd9f606"
 };
+
 
 const firebaseApp = initializeApp(firebaseConfig);
 
@@ -29,6 +31,7 @@ export async function getCities() {
 
 }
 export async function add(payload){
+  console.log(payload)
     const uuid =  makeid(35)
     payload.uuid = uuid
     await setDoc(doc(db, "tasks",uuid), payload);

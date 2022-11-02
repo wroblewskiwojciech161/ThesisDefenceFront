@@ -1,4 +1,5 @@
 module.exports = {
+  publicPath: '/ThesisDefenceFront',
   pluginOptions: {
     i18n: {
       locale: "pl",
@@ -10,4 +11,5 @@ module.exports = {
   },
 
   transpileDependencies: ["vuetify"],
+  lintOnSave: false,
 };

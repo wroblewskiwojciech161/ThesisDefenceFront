@@ -594,7 +594,7 @@ export default {
       window.open(url, "_blank");
     },
     sendForm() {
-      if (this.addFormModel &&  this.accessToken == "wit") {
+      if (this.addFormModel &&  true) {
         const payload = {
           sender: this.addSender,
           question: this.addQuestion,

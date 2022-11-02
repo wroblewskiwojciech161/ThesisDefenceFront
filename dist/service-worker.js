@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.b8fa8ecdd6a3c1d8018cace97ecda6a9.js"
+  "/ThesisDefenceFront/precache-manifest.3afe7b19567af8d0ad78752589b4cc26.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "thesis-defence"});
